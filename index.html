@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grok Bot 新手教學｜分階段循序漸進</title>
+<meta name="description" content="從零開始學習使用 Grok Bot：建立 bot、記憶、定時任務、連接服務、技能、多個 bot 分工合作。每個階段都有實例跟著做。">
+<style>
+:root{
+  --bg:#ffffff; --bg-soft:#f6f7f9; --line:#e6e8ec; --text:#1d2228; --muted:#5f6b7a;
+  --accent:#0f766e; --accent-soft:#e6f4f2; --accent-ink:#0b5c56;
+  --code-bg:#f3f5f7; --radius:12px;
+  --sidebar:260px;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#121417; --bg-soft:#1a1d21; --line:#2a2f35; --text:#e7eaee; --muted:#9aa4b1;
+    --accent:#2dd4bf; --accent-soft:#12302d; --accent-ink:#5eead4; --code-bg:#1e2227;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:24px}
+body{margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang HK","PingFang TC","Noto Sans TC","Noto Sans CJK HK","Noto Sans CJK TC","Microsoft JhengHei",sans-serif;
+  font-size:16.5px;line-height:1.8;-webkit-font-smoothing:antialiased}
+a{color:var(--accent-ink)}
+kbd{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;background:var(--code-bg);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 .35em}
+.ui{font-weight:600;background:var(--accent-soft);color:var(--accent-ink);padding:.05em .4em;border-radius:5px;white-space:nowrap}
+
+/* layout */
+.layout{display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);min-height:100vh}
+aside.side{position:sticky;top:0;height:100vh;overflow-y:auto;border-right:1px solid var(--line);padding:28px 20px;background:var(--bg)}
+.brand{font-weight:700;font-size:1.05rem;letter-spacing:.02em;margin-bottom:18px;display:flex;align-items:center;gap:8px;color:var(--text);text-decoration:none}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.progress{margin:0 0 20px}
+.progress .label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:6px}
+.bar{height:6px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+nav.steps ol{list-style:none;margin:0;padding:0}
+nav.steps a{display:flex;gap:10px;align-items:center;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--muted);font-size:.93rem;line-height:1.4}
+nav.steps a:hover{background:var(--bg-soft);color:var(--text)}
+nav.steps a.active{background:var(--accent-soft);color:var(--accent-ink);font-weight:600}
+nav.steps .num{flex:none;width:24px;height:24px;border-radius:50%;border:1.5px solid var(--line);display:grid;place-items:center;font-size:.78rem;font-weight:600;background:var(--bg)}
+nav.steps a.done .num{background:var(--accent);border-color:var(--accent);color:#fff;font-size:0}
+nav.steps a.done .num::after{content:"✓";font-size:.8rem}
+.reset{margin-top:18px;background:none;border:0;color:var(--muted);font-size:.8rem;cursor:pointer;padding:4px 10px;text-decoration:underline}
+
+main{min-width:0}
+.wrap{max-width:760px;margin:0 auto;padding:0 28px}
+
+/* mobile top bar */
+.topbar{display:none}
+
+/* hero */
+.hero{padding:88px 0 56px;border-bottom:1px solid var(--line)}
+.eyebrow{display:inline-block;font-size:.8rem;font-weight:600;color:var(--accent-ink);background:var(--accent-soft);padding:3px 10px;border-radius:99px;margin-bottom:18px}
+h1{font-size:2.5rem;line-height:1.3;margin:0 0 18px;letter-spacing:.01em}
+.lead{font-size:1.12rem;color:var(--muted);margin:0 0 28px}
+.btn{display:inline-block;background:var(--accent);color:#fff;text-decoration:none;font-weight:600;padding:11px 22px;border-radius:10px}
+.btn:hover{filter:brightness(1.07)}
+.btn.ghost{background:none;color:var(--accent-ink);border:1px solid var(--line);margin-left:8px}
+.howto{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.howto div{background:var(--bg-soft);border-radius:var(--radius);padding:14px 16px;font-size:.92rem;color:var(--muted);line-height:1.6}
+.howto b{display:block;color:var(--text);margin-bottom:2px}
+
+/* stages */
+section.stage{padding:64px 0;border-bottom:1px solid var(--line)}
+.stage-tag{font-size:.82rem;font-weight:700;color:var(--accent-ink);letter-spacing:.08em}
+h2{font-size:1.75rem;line-height:1.35;margin:6px 0 20px}
+h3{font-size:1.05rem;margin:32px 0 10px}
+.goal{border-left:3px solid var(--accent);padding:4px 0 4px 16px;color:var(--text);margin:0 0 8px}
+.goal b{color:var(--accent-ink)}
+ol.do{padding-left:1.4em;margin:0}
+ol.do li{margin:0 0 8px;padding-left:4px}
+ol.do li::marker{color:var(--accent-ink);font-weight:700}
+p{margin:0 0 14px}
+.muted{color:var(--muted)}
+
+.concepts{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:8px 0}
+.concept{border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.concept b{display:block;margin-bottom:2px}
+.concept span{color:var(--muted);font-size:.93rem;line-height:1.65;display:block}
+
+.try{margin:28px 0 0;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+.try-head{display:flex;align-items:center;gap:8px;padding:10px 16px;background:var(--bg-soft);border-bottom:1px solid var(--line);font-weight:700;font-size:.92rem}
+.try-head::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.try-body{padding:16px}
+.try-body > p:last-child{margin-bottom:0}
+.prompt{position:relative;background:var(--code-bg);border-radius:10px;padding:14px 90px 14px 16px;margin:10px 0;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.prompt .who{display:block;font-size:.75rem;color:var(--muted);margin-bottom:2px}
+.copy{position:absolute;top:10px;right:10px;font:inherit;font-size:.8rem;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:7px;padding:3px 10px;cursor:pointer}
+.copy:hover{border-color:var(--accent);color:var(--accent-ink)}
+.copy.ok{background:var(--accent);border-color:var(--accent);color:#fff}
+.expect{margin-top:14px;background:var(--accent-soft);border-radius:10px;padding:12px 16px}
+.expect b{color:var(--accent-ink)}
+.note{font-size:.92rem;color:var(--muted);background:var(--bg-soft);border-radius:10px;padding:12px 16px;margin:18px 0 0}
+.note b{color:var(--text)}
+
+.done-row{margin-top:28px;display:flex;align-items:center;gap:12px}
+.done-row label{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;border:1px solid var(--line);border-radius:99px;padding:8px 18px 8px 14px;font-weight:600}
+.done-row input{width:18px;height:18px;accent-color:var(--accent);margin:0}
+.done-row label:has(input:checked){background:var(--accent-soft);border-color:var(--accent);color:var(--accent-ink)}
+
+.faq details{border:1px solid var(--line);border-radius:var(--radius);padding:0 16px;margin:0 0 10px}
+.faq summary{cursor:pointer;font-weight:600;padding:13px 0;list-style:none;display:flex;justify-content:space-between;gap:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--accent-ink);font-weight:700}
+.faq details[open] summary::after{content:"–"}
+.faq details > div{padding:0 0 14px;color:var(--text)}
+.faq details > div p:last-child{margin:0}
+
+.team{width:100%;border-collapse:collapse;margin:8px 0;font-size:.95rem}
+.team th,.team td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.team th{color:var(--muted);font-weight:600;font-size:.85rem}
+
+footer{padding:40px 0 64px;color:var(--muted);font-size:.88rem}
+
+/* responsive */
+@media (max-width: 900px){
+  .layout{display:block}
+  aside.side{display:none}
+  .topbar{display:block;position:sticky;top:0;z-index:10;background:var(--bg);border-bottom:1px solid var(--line)}
+  .topbar .row{display:flex;align-items:center;gap:12px;padding:10px 18px 6px}
+  .topbar .brand{margin:0;font-size:.95rem;flex:none}
+  .topbar .bar{flex:1}
+  .topbar .pct{font-size:.78rem;color:var(--muted);flex:none;min-width:3.2em;text-align:right}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding:4px 18px 10px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips a{flex:none;font-size:.8rem;text-decoration:none;color:var(--muted);border:1px solid var(--line);border-radius:99px;padding:3px 11px;white-space:nowrap}
+  .chips a.active{border-color:var(--accent);color:var(--accent-ink);background:var(--accent-soft);font-weight:600}
+  .chips a.done::before{content:"✓ ";color:var(--accent-ink)}
+  html{scroll-padding-top:100px}
+  .wrap{padding:0 20px}
+  .hero{padding:44px 0 40px}
+  h1{font-size:1.9rem}
+  h2{font-size:1.45rem}
+  section.stage{padding:48px 0}
+  .howto{grid-template-columns:1fr}
+  .concepts{grid-template-columns:1fr}
+  .prompt{padding:36px 14px 14px}
+  .copy{top:8px;right:8px}
+  .btn.ghost{margin:10px 0 0}
+  .ui{white-space:normal}
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="side" aria-label="教學目錄">
+  <a class="brand" href="#top"><span class="dot"></span>Grok Bot 新手教學</a>
+  <div class="progress">
+    <div class="label"><span>學習進度</span><span class="pct">0 / 8</span></div>
+    <div class="bar"><i></i></div>
+  </div>
+  <nav class="steps"><ol id="nav-list"></ol></nav>
+  <button class="reset" type="button" id="reset">重設進度</button>
+</aside>
+
+<main id="top">
+  <div class="topbar" aria-label="教學目錄（手機）">
+    <div class="row">
+      <a class="brand" href="#top"><span class="dot"></span>Grok Bot 教學</a>
+      <div class="bar"><i></i></div>
+      <span class="pct">0 / 8</span>
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="wrap">
+
+  <header class="hero">
+    <span class="eyebrow">新手教學 · 8 個階段</span>
+    <h1>一步一步學會使用<br>Grok Bot</h1>
+    <p class="lead">Grok Bot 是一個桌面 AI 助手應用程式。你可以建立多個「bot」，每個 bot 都有自己的對話、性格和記憶，還有自己的桌面和瀏覽器替你辦事。不需要懂得寫程式，會打字就可以。</p>
+    <a class="btn" href="#s0">從階段 0 開始</a>
+    <a class="btn ghost" href="#s7">直接查看常見問題</a>
+    <div class="howto">
+      <div><b>① 按次序學習</b>每個階段都建基於上一個階段，建議依次完成。</div>
+      <div><b>② 複製指令試用</b>點擊「跟著做」內的「複製」按鈕，把句子貼到與 bot 的對話中即可。</div>
+      <div><b>③ 勾選「完成」</b>進度會儲存在這部電腦的瀏覽器中，下次回來仍然記得。</div>
+    </div>
+  </header>
+
+  <!-- 階段 0 -->
+  <section class="stage" id="s0" data-title="認識 Grok Bot">
+    <div class="stage-tag">階段 0</div>
+    <h2>認識 Grok Bot：幾個基本概念</h2>
+    <p class="goal"><b>目標：</b>用五分鐘弄清楚之後經常會見到的幾個名詞。</p>
+
+    <div class="concepts">
+      <div class="concept"><b>🤖 Bot（助手）</b><span>一個 AI 助手。你可以建立很多個，每個都有自己的名字、性格和專長，例如「新聞 bot」、「比價 bot」。</span></div>
+      <div class="concept"><b>💬 對話</b><span>每個 bot 都有自己的聊天視窗。你像平常說話一樣打字，它就會回覆，也可以傳送圖片、檔案，或錄製語音訊息給你。</span></div>
+      <div class="concept"><b>🧠 記憶</b><span>你請它記住的事情（例如你住在哪裡、喜歡甚麼），它在之後的對話中都會記得。</span></div>
+      <div class="concept"><b>🖥️ 電腦</b><span>所有 bot 共用一部 Linux 電腦（檔案彼此都看得到），但每個 bot 都有自己的桌面和瀏覽器，你可以隨時查看它正在做甚麼。</span></div>
+      <div class="concept"><b>⏰ 定時任務（Routine）</b><span>已儲存的任務，會定時自動執行（例如每天早上 8 時），或在某件事發生時觸發。</span></div>
+      <div class="concept"><b>📘 技能（Skill）</b><span>把一套做過的步驟儲存成「食譜」，下次一句話就能照著做。</span></div>
+      <div class="concept"><b>🔌 連接器（Connector）</b><span>連接外部服務，例如 GitHub、X，讓 bot 可以使用你授權的帳戶辦事。</span></div>
+      <div class="concept"><b>👥 團隊</b><span>Bot 之間可以互相傳送訊息、在群組中合作，像一隊同事一樣分工。</span></div>
+    </div>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p>打開 Grok Bot，選擇任何一個 bot，在對話框貼上：</p>
+        <div class="prompt"><span class="who">你</span>請用三句簡單的話，說明你可以幫我做些甚麼。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>bot 會用幾句話介紹自己，例如替你搜尋資料、撰寫文字、定時提醒你做事等。</div>
+      </div>
+    </div>
+    <div class="done-row"><label><input type="checkbox" data-stage="0">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 1 -->
+  <section class="stage" id="s1" data-title="建立第一個 bot 並對話">
+    <div class="stage-tag">階段 1</div>
+    <h2>建立第一個 bot，和它對話</h2>
+    <p class="goal"><b>目標：</b>擁有一個屬於你的 bot，設定好名字和介紹，然後請它完成兩件小事。</p>
+
+    <h3>步驟</h3>
+    <ol class="do">
+      <li>在 Grok Bot 中新增一個 bot（如果應用程式中已經有一個 bot，直接使用也可以）。</li>
+      <li>點擊對話頂部的 <span class="ui">bot 名稱</span>（或按 <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>），會打開這個 bot 的資料面板。</li>
+      <li>點擊面板右上角「X」旁邊的 <span class="ui">齒輪</span>，就可以修改它的頭像、名稱、職銜和描述。例如名稱設為「Nancy」，職銜設為「新聞助手」。完成後點擊「X」關閉面板。</li>
+      <li>回到對話框，像和朋友傳訊息一樣打字。說得越具體，答案就越切合你的需要。</li>
+    </ol>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p><b>例子 A：</b>查詢天氣</p>
+        <div class="prompt"><span class="who">你</span>請幫我查詢香港今天的天氣，用三點說明，最後告訴我外出是否需要帶傘。<button class="copy" type="button">複製</button></div>
+        <p><b>例子 B：</b>撰寫一段介紹</p>
+        <div class="prompt"><span class="who">你</span>請幫我寫一段約 100 字的自我介紹，用於公司內部群組。我叫阿明，從事市場推廣工作，喜歡遠足和攝影，語氣輕鬆一點。<button class="copy" type="button">複製</button></div>
+        <p><b>例子 C（進階）：</b>不同形式的回覆</p>
+        <div class="prompt"><span class="who">你</span>請把剛才那段自我介紹錄製成語音訊息給我聽。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>A 會得到一段簡短的天氣摘要；B 會得到一段可以直接使用的文字；C 會收到一段語音訊息。不滿意？直接告訴它「短一點」、「正式一點」即可。</div>
+      </div>
+    </div>
+    <p class="note"><b>小技巧：</b>想 bot 以某種語氣或身份做事，也可以直接在對話中說明，例如「你是我的新聞助手，回答時要簡潔」。</p>
+    <div class="done-row"><label><input type="checkbox" data-stage="1">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 2 -->
+  <section class="stage" id="s2" data-title="讓它記住你">
+    <div class="stage-tag">階段 2</div>
+    <h2>讓 bot 記住你</h2>
+    <p class="goal"><b>目標：</b>請 bot 記住你的喜好，之後不必每次重新說明。</p>
+
+    <h3>步驟</h3>
+    <ol class="do">
+      <li>用「請記住……」開頭，說出你想它記住的事情。</li>
+      <li>過一段時間（或第二天），問一個需要用到這些資料的問題，看看它是否記得。</li>
+      <li>資料有變？直接請它更新或忘記。</li>
+    </ol>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p><b>第 1 步：</b>告訴它你的資料</p>
+        <div class="prompt"><span class="who">你</span>請記住：我住在沙田，吃素，平日早上 7 時半起床，希望你用繁體中文回覆我。<button class="copy" type="button">複製</button></div>
+        <p><b>第 2 步：</b>測試它是否記得</p>
+        <div class="prompt"><span class="who">你</span>今晚想出去吃飯，有甚麼推介？<button class="copy" type="button">複製</button></div>
+        <p><b>第 3 步：</b>更新記憶</p>
+        <div class="prompt"><span class="who">你</span>更新一下：我已搬到將軍澳，不再住在沙田了。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>第 2 步的推介應該是沙田附近、以素食為主，並且用繁體中文回答你。完成第 3 步之後，它會改為推介將軍澳的選擇。</div>
+      </div>
+    </div>
+    <p class="note"><b>注意：</b>不要請 bot 記住密碼、信用卡號碼等敏感資料。</p>
+    <div class="done-row"><label><input type="checkbox" data-stage="2">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 3 -->
+  <section class="stage" id="s3" data-title="定時任務 Routine">
+    <div class="stage-tag">階段 3</div>
+    <h2>定時任務（Routine）：每天早上自動發送新聞</h2>
+    <p class="goal"><b>目標：</b>設定一個每天自動執行的任務，不必你開口也會完成。</p>
+
+    <h3>步驟</h3>
+    <ol class="do">
+      <li>在對話中使用「每天」、「每天早上」、「提醒我」、「幫我留意」這類字眼，說清楚<b>甚麼時候</b>和<b>做甚麼</b>。</li>
+      <li>bot 會為你建立 routine，有時會彈出一張確認卡，看清楚內容後再確認。</li>
+      <li>點擊對話頂部的 bot 名稱打開資料面板，就可以在 <span class="ui">Routines</span> 列表中看到它。</li>
+      <li>想更改時間或暫停，同樣直接告訴 bot 即可。</li>
+    </ol>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p><b>建立：</b>每日新聞摘要</p>
+        <div class="prompt"><span class="who">你</span>每天早上 8 時（香港時間），請幫我整理 15 至 20 則香港及國際新聞，每則附一句摘要和來源連結，重要的排在前面。<button class="copy" type="button">複製</button></div>
+        <p><b>修改：</b></p>
+        <div class="prompt"><span class="who">你</span>請把每日新聞改為早上 7 時半發送，星期六和星期日不用發送。<button class="copy" type="button">複製</button></div>
+        <p><b>簡單提醒也可以：</b></p>
+        <div class="prompt"><span class="who">你</span>平日下午 3 時提醒我喝水和起來走動一下。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>bot 確認已建立 routine，資料面板的 Routines 列表會多了一項。第二天早上 8 時左右，你會在對話中收到新聞摘要。</div>
+      </div>
+    </div>
+    <p class="note"><b>兩種觸發方式：</b>「定時」（例如每天早上 8 時）和「事件觸發」（例如「有新的 GitHub issue 就通知我」）。後者通常需要先連接服務，也就是下一個階段的內容。</p>
+    <div class="done-row"><label><input type="checkbox" data-stage="3">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 4 -->
+  <section class="stage" id="s4" data-title="連接服務 Connector">
+    <div class="stage-tag">階段 4</div>
+    <h2>連接服務（Connector）：連接 GitHub 或 X</h2>
+    <p class="goal"><b>目標：</b>授權 bot 使用你的帳戶讀取外部服務的資料。</p>
+
+    <h3>步驟</h3>
+    <ol class="do">
+      <li>直接請 bot 完成一件需要用到某項服務的事，不必自己尋找設定。</li>
+      <li>如果尚未連接，bot 會在對話中顯示一張<b>連接卡</b>。</li>
+      <li>點擊連接卡，按指示登入並授權你自己的帳戶。</li>
+      <li>授權完成後，bot 會繼續完成你原本的要求。</li>
+    </ol>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p><b>例子 A：</b>GitHub</p>
+        <div class="prompt"><span class="who">你</span>請幫我查看我在 GitHub 上有哪些 issue 和 pull request 正等待我處理，並列出清單。<button class="copy" type="button">複製</button></div>
+        <p><b>例子 B：</b>X（前稱 Twitter）</p>
+        <div class="prompt"><span class="who">你</span>請幫我搜尋今天 X 上關於香港的熱門貼文，選出討論最多的 10 則，每則用一句話說明重點。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>第一次使用時會看到連接卡；授權之後，bot 會列出你在 GitHub 的待辦事項，或 X 熱門貼文的摘要。之後再使用同一項服務便不必再次授權。</div>
+      </div>
+    </div>
+    <p class="note"><b>請放心：</b>讀取資料和代你「發出」內容是兩回事。bot 要代你發文、留言或寄出電郵之前，會先擬好草稿讓你查看，經你批准後才會發出。</p>
+    <div class="done-row"><label><input type="checkbox" data-stage="4">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 5 -->
+  <section class="stage" id="s5" data-title="儲存技能 Skill">
+    <div class="stage-tag">階段 5</div>
+    <h2>儲存技能（Skill）：一句話重用整套做法</h2>
+    <p class="goal"><b>目標：</b>把一個包含多個步驟的任務儲存起來，下次只需說一句話。</p>
+
+    <h3>步驟</h3>
+    <ol class="do">
+      <li>先請 bot 完整地做一次任務，過程中發現不對便立即糾正。</li>
+      <li>（可選）點擊對話頂部的 bot 名稱，資料面板會顯示它的電腦即時畫面；點擊畫面可以全螢幕觀看它如何使用瀏覽器。</li>
+      <li>滿意結果之後，請它把這套做法儲存為技能，並取一個容易記的名稱。</li>
+      <li>下次直接請它使用這個技能。</li>
+    </ol>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p><b>第 1 步：</b>先做一次</p>
+        <div class="prompt"><span class="who">你</span>請幫我比價：Sony WH-1000XM5 耳機目前在香港幾間大型電器店和網店的售價，整理成表格並附上連結，最便宜的排第一。<button class="copy" type="button">複製</button></div>
+        <p><b>第 2 步：</b>儲存為技能</p>
+        <div class="prompt"><span class="who">你</span>請把剛才比價的做法儲存為一個技能，名稱為「比價」。以後我只要說出產品名稱，你就用同樣的方法和格式幫我查詢。<button class="copy" type="button">複製</button></div>
+        <p><b>第 3 步：</b>重用</p>
+        <div class="prompt"><span class="who">你</span>請用「比價」技能查詢 iPad Air。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>bot 確認技能已儲存。在第 3 步，它會用同一個表格格式提供 iPad Air 的價格比較。</div>
+      </div>
+    </div>
+    <p class="note"><b>Routine 和 Skill 有甚麼分別？</b>Routine 決定「甚麼時候做」（自動觸發）；Skill 決定「怎樣做」（一套做法）。兩者可以一起使用，例如「每個星期一用比價技能查詢 iPad Air」。</p>
+    <div class="done-row"><label><input type="checkbox" data-stage="5">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 6 -->
+  <section class="stage" id="s6" data-title="多個 bot 分工合作">
+    <div class="stage-tag">階段 6</div>
+    <h2>多個 bot 分工合作</h2>
+    <p class="goal"><b>目標：</b>組成一隊 bot，每個專責一項工作，再讓它們互相交接。</p>
+
+    <p>一個 bot 包辦所有事情也可以，但分成幾個會更清晰，每個 bot 的記憶和對話都能專注於自己的工作。例如：</p>
+    <table class="team">
+      <thead><tr><th>Bot</th><th>負責</th></tr></thead>
+      <tbody>
+        <tr><td><b>Nancy</b></td><td>每天早上整理 15–20 則新聞</td></tr>
+        <tr><td><b>Xavier</b></td><td>追蹤 X 上的熱門貼文</td></tr>
+        <tr><td><b>Peter</b></td><td>比價</td></tr>
+        <tr><td><b>Tracy</b></td><td>Telegram 橋樑：把訊息轉發到你的 Telegram</td></tr>
+      </tbody>
+    </table>
+
+    <h3>步驟</h3>
+    <ol class="do">
+      <li>再新增一個 bot，按階段 1 的方法把名稱改為「Tracy」，職銜設為「Telegram 橋樑」。</li>
+      <li>告訴 Tracy 你想連接 Telegram，然後按畫面指示完成授權（如果有可用的頻道連接器，Tracy 的資料面板還會出現 <span class="ui">Channels</span> 一欄）。</li>
+      <li>回到 Nancy 的對話，請她完成新聞摘要後交給 Tracy。</li>
+      <li>如果想讓幾個 bot 在同一處交流，可以建立一個群組對話，群組的資料面板會列出 <span class="ui">Members</span>（成員）。</li>
+    </ol>
+
+    <div class="try">
+      <div class="try-head">跟著做</div>
+      <div class="try-body">
+        <p><b>對 Nancy 說：</b></p>
+        <div class="prompt"><span class="who">你 → Nancy</span>每天早上整理好新聞摘要之後，請傳送給 Tracy，請她轉發到我的 Telegram。<button class="copy" type="button">複製</button></div>
+        <p><b>對 Tracy 說：</b></p>
+        <div class="prompt"><span class="who">你 → Tracy</span>Nancy 每天早上會傳送新聞摘要給你，你收到後請原文轉發到我的 Telegram，不用修改內容。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>第二天早上，Nancy 整理好新聞後會交給 Tracy，你會在 Telegram 收到摘要。首次設定時，bot 可能會先徵求你的確認，才代你發出訊息。</div>
+      </div>
+    </div>
+    <p class="note"><b>提示：</b>所有 bot 共用同一部電腦的檔案，所以 A bot 製作的檔案，B bot 也能讀取；但它們的桌面和瀏覽器各自獨立，不會互相干擾。</p>
+    <div class="done-row"><label><input type="checkbox" data-stage="6">完成這個階段</label></div>
+  </section>
+
+  <!-- 階段 7 -->
+  <section class="stage" id="s7" data-title="小提示與常見問題">
+    <div class="stage-tag">階段 7</div>
+    <h2>小提示與常見問題</h2>
+    <p class="goal"><b>目標：</b>了解如何安全、順暢地長期使用。</p>
+
+    <h3>三個好習慣</h3>
+    <ol class="do">
+      <li><b>說清楚：</b>甚麼時候、做甚麼、需要甚麼格式（例如「列表」、「三點」、「表格」）。</li>
+      <li><b>一個 bot 一項專長：</b>記憶和對話會更清晰。</li>
+      <li><b>先看草稿：</b>凡是代你對外發出的內容，看清楚草稿再批准。</li>
+    </ol>
+
+    <h3>常見問題</h3>
+    <div class="faq">
+      <details open>
+        <summary>bot 會不會自行亂發訊息或電郵？</summary>
+        <div><p>不會。bot 代你寄出電郵、發送訊息或發文之前，會先擬好草稿讓你查看，經你批准後才發出。不想發出的話，告訴它「不要發」即可。</p></div>
+      </details>
+      <details>
+        <summary>如何打開設定（Settings）？</summary>
+        <div><p>有三個方法：點擊側邊欄左下角的<b>帳戶按鈕</b>（頭像和帳戶名稱），或按 <kbd>Cmd</kbd>+<kbd>,</kbd>，或在指令面板中選擇 <span class="ui">Open settings</span>。設定包括 <span class="ui">General</span>、<span class="ui">Computer</span>、<span class="ui">Usage &amp; Billing</span>（只限部分帳戶）和 <span class="ui">Updates</span> 幾個分頁。</p></div>
+      </details>
+      <details>
+        <summary>想切換至深色模式？</summary>
+        <div><p>設定 → <span class="ui">General</span> → <span class="ui">Theme</span>，可選擇 Follow System、Light 或 Dark。</p></div>
+      </details>
+      <details>
+        <summary>如何查看 bot 正在做甚麼？</summary>
+        <div><p>點擊對話頂部的 bot 名稱（或按 <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>I</kbd>）打開資料面板，上方會顯示它的電腦即時畫面，點擊即可全螢幕觀看。</p></div>
+      </details>
+      <details>
+        <summary>如何刪除一個 bot？</summary>
+        <div><p>在側邊欄對該 bot <b>按滑鼠右鍵</b>，選擇 <span class="ui">Delete</span>，然後確認。</p><p><b>注意：</b>這是永久刪除，對話記錄會一併刪除；沒有封存或隱藏功能，也不是在設定中操作。</p></div>
+      </details>
+      <details>
+        <summary>bot 的電腦好像卡住了，怎麼辦？</summary>
+        <div><p>先等一會再試，很多時候只是電腦剛剛啟動。如果仍然不行：打開設定，找到 <span class="ui">Update Grok Bot's Computer</span> 這一項（屬於電腦修復功能，一般在 Computer 分頁），點擊 <span class="ui">Update</span>，再點擊 <span class="ui">Click Again to Confirm</span> 確認。</p><p>它會把電腦遷移到一個全新的環境，<b>保留檔案和登入狀態</b>，但之前安裝過的軟件需要重新安裝。下方的 <span class="ui">Reset</span> 會還原到上一次的快照，可能會遺失最近的工作，一般不建議使用。</p></div>
+      </details>
+      <details>
+        <summary>「更新應用程式」和「更新電腦」有甚麼不同？</summary>
+        <div><p>設定 → <span class="ui">Updates</span> 中的 <span class="ui">Check for Updates</span> 用於更新 Grok Bot 應用程式本身；<span class="ui">Update Grok Bot's Computer</span> 則是重建 bot 所用的那部電腦。兩者並不相同。</p></div>
+      </details>
+      <details>
+        <summary>找不到教學中提到的某個按鈕？</summary>
+        <div><p>部分設定只會在某些帳戶或版本中出現。如果找不到，可以直接問你的 bot：「我想做某件事，應該怎樣操作？」</p></div>
+      </details>
+    </div>
+
+    <div class="try">
+      <div class="try-head">跟著做（畢業任務）</div>
+      <div class="try-body">
+        <p>把之前學過的內容結合起來：</p>
+        <div class="prompt"><span class="who">你</span>每個星期五下午 1 時，請用「比價」技能查詢我清單上的產品，整理好後先擬一段訊息讓我查看，經我批准後再交給 Tracy 轉發到 Telegram。<button class="copy" type="button">複製</button></div>
+        <div class="expect"><b>預期結果：</b>bot 建立一個 routine（可能會出現確認卡），每個星期五依照執行，並在發出之前先讓你查看草稿。</div>
+      </div>
+    </div>
+    <div class="done-row"><label><input type="checkbox" data-stage="7">完成這個階段</label></div>
+  </section>
+
+  <footer>
+    <p>🎉 完成全部 8 個階段後，你已經掌握 Grok Bot 的主要功能。之後有任何想做的事，都可以直接問你的 bot。</p>
+    <p>本文為非官方新手教學；應用程式介面可能會隨版本更新而改變。</p>
+  </footer>
+
+  </div>
+</main>
+</div>
+
+<script>
+(function(){
+  var KEY = 'grokbot-tutorial-progress-v1';
+  var stages = Array.prototype.slice.call(document.querySelectorAll('section.stage'));
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('input[data-stage]'));
+  var navList = document.getElementById('nav-list');
+  var chips = document.getElementById('chips');
+  var navLinks = [], chipLinks = [];
+
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch(e){ return {}; } }
+  function save(s){ try { localStorage.setItem(KEY, JSON.stringify(s)); } catch(e){} }
+  var state = load();
+
+  stages.forEach(function(sec, i){
+    var li = document.createElement('li');
+    var a = document.createElement('a');
+    a.href = '#' + sec.id;
+    a.innerHTML = '<span class="num">' + i + '</span><span>' + sec.dataset.title + '</span>';
+    li.appendChild(a); navList.appendChild(li); navLinks.push(a);
+    var c = document.createElement('a');
+    c.href = '#' + sec.id; c.textContent = i + ' ' + sec.dataset.title;
+    chips.appendChild(c); chipLinks.push(c);
+  });
+
+  function render(){
+    var n = 0;
+    boxes.forEach(function(b){
+      var i = +b.dataset.stage, on = !!state[i];
+      b.checked = on; if (on) n++;
+      navLinks[i].classList.toggle('done', on);
+      chipLinks[i].classList.toggle('done', on);
+    });
+    var pct = Math.round(n / boxes.length * 100);
+    document.querySelectorAll('.bar i').forEach(function(el){ el.style.width = pct + '%'; });
+    document.querySelectorAll('.pct').forEach(function(el){ el.textContent = n + ' / ' + boxes.length; });
+  }
+  boxes.forEach(function(b){
+    b.addEventListener('change', function(){ state[b.dataset.stage] = b.checked; save(state); render(); });
+  });
+  document.getElementById('reset').addEventListener('click', function(){
+    if (confirm('確定要清除所有進度？')) { state = {}; save(state); render(); }
+  });
+  render();
+
+  // active section highlight
+  function setActive(i){
+    navLinks.forEach(function(a, j){ a.classList.toggle('active', i === j); });
+    chipLinks.forEach(function(a, j){
+      var on = i === j; a.classList.toggle('active', on);
+      if (on && chips.offsetParent) { chips.scrollTo({ left: a.offsetLeft - 18, behavior: 'smooth' }); }
+    });
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting) setActive(stages.indexOf(e.target)); });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    stages.forEach(function(s){ io.observe(s); });
+  }
+
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var p = btn.parentNode.cloneNode(true);
+      p.querySelectorAll('.copy,.who').forEach(function(x){ x.remove(); });
+      var text = p.textContent.trim();
+      function ok(){ btn.textContent = '已複製'; btn.classList.add('ok');
+        setTimeout(function(){ btn.textContent = '複製'; btn.classList.remove('ok'); }, 1500); }
+      function fallback(){
+        var ta = document.createElement('textarea'); ta.value = text;
+        ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta);
+        ta.select(); try { document.execCommand('copy'); ok(); } catch(e){} ta.remove();
+      }
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(ok, fallback);
+      } else { fallback(); }
+    });
+  });
+})();
+</script>
+</body>
+</html>
